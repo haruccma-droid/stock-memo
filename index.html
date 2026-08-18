@@ -7,59 +7,91 @@
 </head>
 <body>
 
-  <h1>📈 株メモ</h1>
+<h1>📈 株メモ</h1>
+<h2>保有株</h2>
 
-  <h2>保有株</h2>
+<input id="stock" type="text" placeholder="銘柄名"><br><br>
+<input id="price" type="number" placeholder="買値"><br><br>
+<input id="shares" type="number" placeholder="保有株数"><br><br>
+<input id="currentPrice" type="number" placeholder="現在株価"><br><br>
 
-  <input type="text" id="stock" placeholder="銘柄名">
-  <br><br>
+<button onclick="addStock()">追加</button>
 
-  <input type="number" id="price" placeholder="買値">
-  <br><br>
+<div id="stockList"></div>
 
-  <input type="number" id="shares" placeholder="保有株数">
-  <br><br>
+<script>
+let stocks = JSON.parse(localStorage.getItem("stocks2")) || [];
 
-  <input type="number" id="currentPrice" placeholder="現在株価">
-  <br><br>
+function saveStocks() {
+  localStorage.setItem("stocks2", JSON.stringify(stocks));
+}
 
-  <button onclick="addStock()">追加</button>
+function addStock() {
+  const name = document.getElementById("stock").value.trim();
+  const price = Number(document.getElementById("price").value);
+  const shares = Number(document.getElementById("shares").value);
+  const currentPrice = Number(document.getElementById("currentPrice").value);
 
-  <ul id="stockList"></ul>
+  if (!name) {
+    alert("銘柄名を入力してください");
+    return;
+  }
 
-  <script>
-    let stocks = JSON.parse(localStorage.getItem("stocks")) || [];
+  stocks.push({
+    name: name,
+    price: price,
+    shares: shares,
+    currentPrice: currentPrice
+  });
 
-    function saveStocks() {
-      localStorage.setItem("stocks", JSON.stringify(stocks));
-    }
+  saveStocks();
+  showStocks();
 
-    function showStocks() {
-      const list = document.getElementById("stockList");
-      list.innerHTML = "";
+  document.getElementById("stock").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("shares").value = "";
+  document.getElementById("currentPrice").value = "";
+}
 
-      stocks.forEach((stock, index) => {
-        const investment = Number(stock.price) * Number(stock.shares);
-        const value = Number(stock.currentPrice) * Number(stock.shares);
-        const profit = value - investment;
+function deleteStock(index) {
+  stocks.splice(index, 1);
+  saveStocks();
+  showStocks();
+}
 
-        const li = document.createElement("li");
+function showStocks() {
+  const list = document.getElementById("stockList");
+  list.innerHTML = "";
 
-        li.innerHTML =
-          "<strong>" + stock.name + "</strong>" +
-          "<br>買値: " + stock.price +
-          "<br>保有株数: " + stock.shares + "株" +
-          "<br>現在株価: " + stock.currentPrice +
-          "<br>評価額: " + value.toLocaleString() +
-          "<br>損益: " + profit.toLocaleString();
+  stocks.forEach((stock, index) => {
+    const cost = stock.price * stock.shares;
+    const value = stock.currentPrice * stock.shares;
+    const profit = value - cost;
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "削除";
+    const item = document.createElement("div");
 
-        deleteButton.onclick = function () {
-          stocks.splice(index, 1);
-          saveStocks();
-          showStocks();
-        };
+    item.innerHTML =
+      "<hr>" +
+      "<strong>" + stock.name + "</strong><br>" +
+      "買値: " + stock.price.toLocaleString() + "<br>" +
+      "保有株数: " + stock.shares.toLocaleString() + "株<br>" +
+      "現在株価: " + stock.currentPrice.toLocaleString() + "<br>" +
+      "評価額: " + value.toLocaleString() + "<br>" +
+      "損益: " + profit.toLocaleString() + "<br><br>";
 
-        li
+    const button = document.createElement("button");
+    button.textContent = "削除";
+    button.onclick = function() {
+      deleteStock(index);
+    };
+
+    item.appendChild(button);
+    list.appendChild(item);
+  });
+}
+
+showStocks();
+</script>
+
+</body>
+</html>
