@@ -20,6 +20,9 @@
   <input type="number" id="shares" placeholder="保有株数">
   <br><br>
 
+  <input type="number" id="currentPrice" placeholder="現在株価">
+  <br><br>
+
   <button onclick="addStock()">追加</button>
 
   <ul id="stockList"></ul>
@@ -36,12 +39,19 @@
       list.innerHTML = "";
 
       stocks.forEach((stock, index) => {
+        const investment = Number(stock.price) * Number(stock.shares);
+        const value = Number(stock.currentPrice) * Number(stock.shares);
+        const profit = value - investment;
+
         const li = document.createElement("li");
 
         li.innerHTML =
           "<strong>" + stock.name + "</strong>" +
           "<br>買値: " + stock.price +
-          "<br>保有株数: " + stock.shares + "株 ";
+          "<br>保有株数: " + stock.shares + "株" +
+          "<br>現在株価: " + stock.currentPrice +
+          "<br>評価額: " + value.toLocaleString() +
+          "<br>損益: " + profit.toLocaleString();
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "削除";
@@ -52,34 +62,4 @@
           showStocks();
         };
 
-        li.appendChild(deleteButton);
-        list.appendChild(li);
-      });
-    }
-
-    function addStock() {
-      const name = document.getElementById("stock").value.trim();
-      const price = document.getElementById("price").value;
-      const shares = document.getElementById("shares").value;
-
-      if (name === "") return;
-
-      stocks.push({
-        name: name,
-        price: price,
-        shares: shares
-      });
-
-      saveStocks();
-      showStocks();
-
-      document.getElementById("stock").value = "";
-      document.getElementById("price").value = "";
-      document.getElementById("shares").value = "";
-    }
-
-    showStocks();
-  </script>
-
-</body>
-</html>
+        li
