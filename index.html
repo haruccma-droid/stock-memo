@@ -1,1 +1,33 @@
-保有メモ
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>株メモ</title>
+</head>
+<body>
+
+  <h1>📈 株メモ</h1>
+
+  <h2>保有株</h2>
+
+  <input type="text" id="stock" placeholder="銘柄名を入力">
+  <button onclick="addStock()">追加</button>
+
+  <ul id="stockList"></ul>
+
+  <script>
+    function addStock() {
+      const stock = document.getElementById("stock");
+      if (stock.value === "") return;
+
+      const li = document.createElement("li");
+      li.textContent = stock.value;
+      document.getElementById("stockList").appendChild(li);
+
+      stock.value = "";
+    }
+  </script>
+
+</body>
+</html>
