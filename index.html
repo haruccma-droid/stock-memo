@@ -1,86 +1,109 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>株メモ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>株メモ</title>
 </head>
-
 <body>
-  <h1>📈 株メモ</h1>
-  <h2>保有株</h2>
 
-  <input id="stock" type="text" placeholder="銘柄名">
-  <br><br>
+<h1>📈 株メモ</h1>
+<h2>保有株</h2>
 
-  <input id="price" type="number" placeholder="買値">
-  <br><br>
+<input id="name" placeholder="銘柄名"><br><br>
+<input id="buy" type="number" placeholder="買値"><br><br>
+<input id="qty" type="number" placeholder="保有株数"><br><br>
+<input id="now" type="number" placeholder="現在株価"><br><br>
 
-  <input id="shares" type="number" placeholder="保有株数">
-  <br><br>
+<button id="add">追加</button>
 
-  <input id="currentPrice" type="number" placeholder="現在株価">
-  <br><br>
+<div id="list"></div>
 
-  <button id="addButton" type="button">追加</button>
+<script>
+const KEY="stockMemo";
+let stocks=[];
 
-  <div id="stockList"></div>
+try{
+  stocks=JSON.parse(localStorage.getItem(KEY))||[];
+}catch(e){
+  stocks=[];
+}
 
-  <script>
-    const STORAGE_KEY = "stockMemoData";
+const nameEl=document.getElementById("name");
+const buyEl=document.getElementById("buy");
+const qtyEl=document.getElementById("qty");
+const nowEl=document.getElementById("now");
+const list=document.getElementById("list");
 
-    let stocks = [];
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(stocks));
+}
 
-    try {
-      stocks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch (e) {
-      stocks = [];
-    }
+function show(){
+  list.innerHTML="";
 
-    const stockInput = document.getElementById("stock");
-    const priceInput = document.getElementById("price");
-    const sharesInput = document.getElementById("shares");
-    const currentPriceInput = document.getElementById("currentPrice");
-    const addButton = document.getElementById("addButton");
-    const stockList = document.getElementById("stockList");
+  stocks.forEach((s,i)=>{
+    const cost=s.buy*s.qty;
+    const value=s.now*s.qty;
+    const profit=value-cost;
 
-    function saveStocks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
-    }
+    const box=document.createElement("div");
+    box.style.cssText="margin-top:20px;padding:12px;border:1px solid #aaa;border-radius:10px";
 
-    function renderStocks() {
-      stockList.innerHTML = "";
+    box.innerHTML=
+      "<b>"+s.name+"</b><br>"+
+      "買値: "+s.buy.toLocaleString()+"<br>"+
+      "保有株数: "+s.qty.toLocaleString()+"株<br>"+
+      "現在株価: "+s.now.toLocaleString()+"<br>"+
+      "取得額: "+cost.toLocaleString()+"<br>"+
+      "評価額: "+value.toLocaleString()+"<br>"+
+      "損益: "+profit.toLocaleString()+"<br><br>";
 
-      stocks.forEach(function(stock, index) {
-        const cost = stock.price * stock.shares;
-        const value = stock.currentPrice * stock.shares;
-        const profit = value - cost;
+    const del=document.createElement("button");
+    del.textContent="削除";
 
-        const item = document.createElement("div");
-        item.style.marginTop = "20px";
-        item.style.padding = "12px";
-        item.style.border = "1px solid #ccc";
-        item.style.borderRadius = "8px";
+    del.onclick=()=>{
+      stocks.splice(i,1);
+      save();
+      show();
+    };
 
-        const title = document.createElement("strong");
-        title.textContent = stock.name;
-        item.appendChild(title);
+    box.appendChild(del);
+    list.appendChild(box);
+  });
+}
 
-        const details = document.createElement("div");
-        details.innerHTML =
-          "買値: " + stock.price.toLocaleString() + "<br>" +
-          "保有株数: " + stock.shares.toLocaleString() + "株<br>" +
-          "現在株価: " + stock.currentPrice.toLocaleString() + "<br>" +
-          "取得額: " + cost.toLocaleString() + "<br>" +
-          "評価額: " + value.toLocaleString() + "<br>" +
-          "損益: " + profit.toLocaleString();
+document.getElementById("add").onclick=()=>{
+  const name=nameEl.value.trim();
 
-        item.appendChild(details);
+  if(!name){
+    alert("銘柄名を入力してください");
+    return;
+  }
 
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.textContent = "削除";
-        deleteButton.style.marginTop = "10px";
+  if(buyEl.value==="" || qtyEl.value==="" || nowEl.value===""){
+    alert("全部入力してください");
+    return;
+  }
 
-        deleteButton.addEventListener("click", function() {
-          stocks.splice
+  stocks.push({
+    name:name,
+    buy:Number(buyEl.value),
+    qty:Number(qtyEl.value),
+    now:Number(nowEl.value)
+  });
+
+  save();
+  show();
+
+  nameEl.value="";
+  buyEl.value="";
+  qtyEl.value="";
+  nowEl.value="";
+};
+
+show();
+</script>
+
+</body>
+</html>
