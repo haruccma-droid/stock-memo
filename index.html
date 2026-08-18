@@ -5,93 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>株メモ</title>
 </head>
+
 <body>
+  <h1>📈 株メモ</h1>
+  <h2>保有株</h2>
 
-<h1>📈 株メモ</h1>
-<h2>保有株</h2>
+  <input id="stock" type="text" placeholder="銘柄名">
+  <br><br>
 
-<input id="stock" type="text" placeholder="銘柄名"><br><br>
-<input id="price" type="number" placeholder="買値"><br><br>
-<input id="shares" type="number" placeholder="保有株数"><br><br>
-<input id="currentPrice" type="number" placeholder="現在株価"><br><br>
+  <input id="price" type="number" placeholder="買値">
+  <br><br>
 
-<button onclick="addStock()">追加</button>
+  <input id="shares" type="number" placeholder="保有株数">
+  <br><br>
 
-<div id="stockList"></div>
+  <input id="currentPrice" type="number" placeholder="現在株価">
+  <br><br>
 
-<script>
-let stocks = JSON.parse(localStorage.getItem("stocks2")) || [];
+  <button id="addButton" type="button">追加</button>
 
-function saveStocks() {
-  localStorage.setItem("stocks2", JSON.stringify(stocks));
-}
+  <div id="stockList"></div>
 
-function addStock() {
-  const name = document.getElementById("stock").value.trim();
-  const price = Number(document.getElementById("price").value);
-  const shares = Number(document.getElementById("shares").value);
-  const currentPrice = Number(document.getElementById("currentPrice").value);
+  <script>
+    const STORAGE_KEY = "stockMemoData";
 
-  if (!name) {
-    alert("銘柄名を入力してください");
-    return;
-  }
+    let stocks = [];
 
-  stocks.push({
-    name: name,
-    price: price,
-    shares: shares,
-    currentPrice: currentPrice
-  });
+    try {
+      stocks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch (e) {
+      stocks = [];
+    }
 
-  saveStocks();
-  showStocks();
+    const stockInput = document.getElementById("stock");
+    const priceInput = document.getElementById("price");
+    const sharesInput = document.getElementById("shares");
+    const currentPriceInput = document.getElementById("currentPrice");
+    const addButton = document.getElementById("addButton");
+    const stockList = document.getElementById("stockList");
 
-  document.getElementById("stock").value = "";
-  document.getElementById("price").value = "";
-  document.getElementById("shares").value = "";
-  document.getElementById("currentPrice").value = "";
-}
+    function saveStocks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks));
+    }
 
-function deleteStock(index) {
-  stocks.splice(index, 1);
-  saveStocks();
-  showStocks();
-}
+    function renderStocks() {
+      stockList.innerHTML = "";
 
-function showStocks() {
-  const list = document.getElementById("stockList");
-  list.innerHTML = "";
+      stocks.forEach(function(stock, index) {
+        const cost = stock.price * stock.shares;
+        const value = stock.currentPrice * stock.shares;
+        const profit = value - cost;
 
-  stocks.forEach((stock, index) => {
-    const cost = stock.price * stock.shares;
-    const value = stock.currentPrice * stock.shares;
-    const profit = value - cost;
+        const item = document.createElement("div");
+        item.style.marginTop = "20px";
+        item.style.padding = "12px";
+        item.style.border = "1px solid #ccc";
+        item.style.borderRadius = "8px";
 
-    const item = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = stock.name;
+        item.appendChild(title);
 
-    item.innerHTML =
-      "<hr>" +
-      "<strong>" + stock.name + "</strong><br>" +
-      "買値: " + stock.price.toLocaleString() + "<br>" +
-      "保有株数: " + stock.shares.toLocaleString() + "株<br>" +
-      "現在株価: " + stock.currentPrice.toLocaleString() + "<br>" +
-      "評価額: " + value.toLocaleString() + "<br>" +
-      "損益: " + profit.toLocaleString() + "<br><br>";
+        const details = document.createElement("div");
+        details.innerHTML =
+          "買値: " + stock.price.toLocaleString() + "<br>" +
+          "保有株数: " + stock.shares.toLocaleString() + "株<br>" +
+          "現在株価: " + stock.currentPrice.toLocaleString() + "<br>" +
+          "取得額: " + cost.toLocaleString() + "<br>" +
+          "評価額: " + value.toLocaleString() + "<br>" +
+          "損益: " + profit.toLocaleString();
 
-    const button = document.createElement("button");
-    button.textContent = "削除";
-    button.onclick = function() {
-      deleteStock(index);
-    };
+        item.appendChild(details);
 
-    item.appendChild(button);
-    list.appendChild(item);
-  });
-}
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.textContent = "削除";
+        deleteButton.style.marginTop = "10px";
 
-showStocks();
-</script>
-
-</body>
-</html>
+        deleteButton.addEventListener("click", function() {
+          stocks.splice
