@@ -5,20 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>株メモ</title>
 </head>
-
 <body>
 
   <h1>📈 株メモ</h1>
 
   <h2>保有株</h2>
 
-  <input type="text" id="stock" placeholder="銘柄名を入力">
+  <input type="text" id="stock" placeholder="銘柄名">
+  <br><br>
+
+  <input type="number" id="price" placeholder="買値">
+  <br><br>
+
+  <input type="number" id="shares" placeholder="保有株数">
+  <br><br>
+
   <button onclick="addStock()">追加</button>
 
   <ul id="stockList"></ul>
 
   <script>
     let stocks = JSON.parse(localStorage.getItem("stocks")) || [];
+
+    function saveStocks() {
+      localStorage.setItem("stocks", JSON.stringify(stocks));
+    }
 
     function showStocks() {
       const list = document.getElementById("stockList");
@@ -27,7 +38,10 @@
       stocks.forEach((stock, index) => {
         const li = document.createElement("li");
 
-        li.textContent = stock + " ";
+        li.innerHTML =
+          "<strong>" + stock.name + "</strong>" +
+          "<br>買値: " + stock.price +
+          "<br>保有株数: " + stock.shares + "株 ";
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "削除";
@@ -44,20 +58,24 @@
     }
 
     function addStock() {
-      const input = document.getElementById("stock");
-      const stock = input.value.trim();
+      const name = document.getElementById("stock").value.trim();
+      const price = document.getElementById("price").value;
+      const shares = document.getElementById("shares").value;
 
-      if (stock === "") return;
+      if (name === "") return;
 
-      stocks.push(stock);
+      stocks.push({
+        name: name,
+        price: price,
+        shares: shares
+      });
+
       saveStocks();
       showStocks();
 
-      input.value = "";
-    }
-
-    function saveStocks() {
-      localStorage.setItem("stocks", JSON.stringify(stocks));
+      document.getElementById("stock").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("shares").value = "";
     }
 
     showStocks();
